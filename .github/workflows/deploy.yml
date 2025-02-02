@@ -1,0 +1,26 @@
+name: Deploy HTML files to GitHub Pages
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'satviz/viz_output/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out the repository
+      uses: actions/checkout@v2
+    - name: Copy HTML files to the root directory
+      run: |
+        mkdir -p output
+        cp -r satviz/viz_output/* output/
+    - name: Deploy to GitHub Pages
+      uses: JamesIves/github-pages-deploy-action@v4
+      with:
+        branch: gh-pages
+        folder: output
+        token: ${{ secrets.GITHUB_TOKEN }}
