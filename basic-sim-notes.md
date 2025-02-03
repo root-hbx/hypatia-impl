@@ -930,7 +930,7 @@ TcpOptimizer::OptimizeUsingWorstCaseRtt(basicSimulation, topology->GetWorstCaseR
 - `topology->GetWorstCaseRttEstimateNs()` 会返回最坏情况下的 RTT 估算值
     - 这个值会用于进一步调整 TCP 的定时设置，以适应网络的最差情况。
 
-## Future work
+## Future Work
 
 > ns3-sat-sim/simulator/contrib/basic-sim/doc/future_work.md
 
