@@ -1,10 +1,12 @@
 # Hypatia Implementation
 
-这是笔者围绕`hypatia`模拟器展开实验的仓库，包含原论文全部实验复现、新特性引入
+这是笔者围绕`hypatia`模拟器展开实验的仓库，包含原论文全部实验复现、新特性引入👀
 
 - 论文: [IMC 20' Exploring the "Internet from space" with Hypatia](https://dl.acm.org/doi/10.1145/3419394.3423635)
 - 原仓库: [snkas hypatia](https://github.com/snkas/hypatia)
 - 原仓库README: [ori README](./ori-readme.md)
+
+这个仓库更多是实验相关，笔者另写了一些针对`hypatia`模拟器的使用教程、自总结笔记（不一定对）和LEO开发的心路历程，[传送门](https://blog.bxhu2004.com/Sci_doc/hypatia/)
 
 ## 环境配置
 
@@ -223,6 +225,8 @@ __运行逻辑__:
 但是！我们还需要参考`ns3-sat-sim/simulator/contrib/basic-sim/doc`下的教程进行系统学习！
 
 这一部分非常非常重要，后期自定义模块都在这里！
+
+笔者对这一部分的汇总解析在这里, [传送门](./basic-sim-notes.md)
 
 ### Step 3
 
