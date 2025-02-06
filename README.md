@@ -8,6 +8,8 @@
 
 这个仓库更多是实验相关，笔者另写了一些针对`hypatia`模拟器的使用教程、自总结笔记（不一定对）和LEO开发的心路历程，[传送门](https://blog.bxhu2004.com/Sci_doc/hypatia/)
 
+这个仓库是原始版+超长流水账，如果想清晰地了解每个模块，建议走上述 *传送门* 🚀
+
 ## 环境配置
 
 跟原论文仓库不一样的是，这里给出的是我自己的运行配置
@@ -33,9 +35,21 @@
 
 笔者一开始采用的是“按照步骤自己本机运行”，但是太太太太太慢了！
 
-具体来说：`Step 4: running ns-3 experiments` 在我的本机上运行了超过5天
+具体来说：
+
+`Step 1: generating LEO satellite network dynamic state over time` 在我的本机上运行了超过72h，还只完成了第一阶段...
+
+`Step 4: running ns-3 experiments` 在我的本机上运行了超过5天
+
+由于自行跑的时间太长，遂放弃，决定利用作者给出的数据包过一遍流程
 
 在“按照步骤自己本机运行”的过程中，笔者发现存在一些nits需要修复，这个仓库给出的是已经fix的版本
+
+在fix的过程中，参考了以下材料与加强实现:
+
+1. [Hypatia Issues](https://github.com/snkas/hypatia/issues)
+2. [UCL LEO Course Project](https://github.com/charliebarber/hypatia)
+3. [Dynamic Load-balancing Routing Algorithm for LEO](https://github.com/silent-rookie/Dynamic_Load_Balancing_Routing_Algorithm)
 
 ### 1) 基于压缩包数据的实验复现
 
@@ -256,21 +270,86 @@ __生成数据__ (`paper/satgenpy_analysis/data`):
 
 LEO卫星网络模拟器的具体使用！
 
+#### A to B experiments
+
 __数据来源__:
 
 来自 Step 1 使用`satgenpy`提供的星座动态状态数据
 
+__运行顺序__
 
+```bash
+cd a_b || exit 1
+python step_1_generate_runs.py || exit 1
+python step_2_run.py || exit 1
+python step_3_generate_plots.py || exit 1
+```
 
+你会在 `a_b/` 下看见以下几个脚本:
 
+1) `run_list.py`: 
 
+提供很多配置运行的参数，比如`queue_size_pkt` / `pingmesh_interval_ns`
 
+仔细回想Step 2的basic-sim中，配置文件是`config_xxx`，这些应该可以关联起来，因此合理推测这些py脚本的本质是：
 
+1. 先给basic-sim提供指定参数
+2. 基于basic-sim内核运行程序（“本质程序是basic-sim中的main函数”）
+3. 将结果送回到当前
 
+2) `step_1_generate_runs.py`:
 
+参数配置，为run做准备
 
+3) `step_2_run.py`:
 
+真相大白了！确实就是上面分析的那样！
 
+本质上，生成所有数据的源脚本是`ns3-sat-sim/simulator/scratch/main_satnet/main_satnet.cc`
+
+我们可以从这里的python脚本分析出运行模式:
+
+```py
+for run in get_tcp_run_list():
+    logs_ns3_dir = "runs/" + run["name"] + "/logs_ns3"
+    local_shell.remove_force_recursive(logs_ns3_dir)
+    local_shell.make_full_dir(logs_ns3_dir)
+    commands_to_run.append(
+        "cd ../../../ns3-sat-sim/simulator; "
+        "./waf --run=\"main_satnet --run_dir='../../paper/ns3_experiments/a_b/runs/" + run["name"] + "'\" "
+        "2>&1 | tee '../../paper/ns3_experiments/a_b/" + logs_ns3_dir + "/console.txt'"
+    )
+```
+
+1. 实际运行的脚本是`main_satnet.cc`，此试验的参数来源是`a_b/runs/...`
+2. 去到basic-sim，使用`./waf`构建
+3. 所有的结果拷贝到当下
+
+4) `step_3_generate_plots.py`
+
+画图和生成PDF的脚本，不用看了
+
+#### Traffic matrix
+
+```bash
+cd traffic_matrix || exit 1
+python step_1_generate_runs.py || exit 1
+python step_2_run.py || exit 1
+python step_3_generate_plots.py || exit 1
+```
+
+同上，运行模式完全一致
+
+#### Traffic matrix load (scalability)
+
+```bash
+cd traffic_matrix_load || exit 1
+python step_1_generate_runs.py || exit 1
+python step_2_run.py || exit 1
+python step_3_generate_plots.py || exit 1
+```
+
+同上，运行模式完全一致
 
 ### Step 5
 
